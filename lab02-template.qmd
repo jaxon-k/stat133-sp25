@@ -1,0 +1,399 @@
+---
+title: "Lab-2: Vectors"
+subtitle: "Stat 133"
+format: 
+  html:
+    toc: true
+    number-sections: true
+    theme: zephyr
+embed-resources: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+
+::: {.callout-note icon=false}
+
+## General Instructions
+
+-   Use the template file `lab02-template.qmd` to answer the questions.
+
+-   Rename this file as `lab02-first-last.qmd`, where `first` and `last`
+    are your first and last names (e.g. `lab02-gaston-sanchez.qmd`).
+
+-   Make sure the YAML header in your `qmd` files includes `embed-resources: true`
+
+-   Submit both your qmd and HTML files to the corresponding assignment
+    submission in bCourses.
+
+-   Please note that if you submit the incorrect files you will receive no credit.
+
+:::
+
+
+-----
+
+
+# Data: US State Facts and Figures (1970s)
+
+In this lab, you are going to work with the data set `state` that has to do with
+US State Facts and Figures in the 1970s. Specifically, we are going to use the 
+following vectors:
+
+```{r}
+# vectors
+name = state.name
+area = state.area
+region = state.region
+population = state.x77[ ,"Population"]
+income = state.x77[ ,"Income"]
+illiteracy = state.x77[ ,"Illiteracy"]
+```
+
+
+## Your turn: data-types
+
+Use the function `typeof()` to see the data type of each of the above vectors.
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+# Subsetting
+
+Let's create a vector `five` by selecting the first five elements in `name`:
+
+```{r}
+five <- head(name, n = 5)
+five
+```
+
+Single brackets `[ ]` are used to subset (i.e. subscript, split, slice) vectors.
+For instance, to extract the first element in `five` we pass `1` inside the
+brackets:
+
+```{r}
+five[1]
+```
+
+
+## Your turn: subsetting vectors
+
+Without running the code, try to guess the output of the following commands, and 
+then run them to check your guess:
+
+a) number 2: `five[2]`
+
+```{r}
+# your code
+
+```
+
+
+b) an index of zero: `five[0]`?
+
+```{r}
+# your code
+
+```
+
+
+c) a negative index: `five[-1]`?
+
+```{r}
+# your code
+
+```
+
+
+d) various negative indices: `five[-c(1,2,3)]`?
+
+```{r}
+# your code
+
+```
+
+
+e) an index greater than the length of the vector: `five[6]`?
+
+```{r}
+# your code
+
+```
+
+
+f) repeated indices: `five[c(1,2,2,3,3,3)]`?
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+# Sequences
+
+Often, you will need to generate vectors of numeric sequences, like the first 
+five elements `1:5`, or from the first till the last element `1:length(name)`. 
+R provides the colon operator `:`, and the functions `seq()`, and `rep()` 
+to create various types of sequences, for example:
+
+```{r}
+# 1, 2, 3, 4
+1:4
+
+# 1, 2, 3, 4
+seq(from = 1, to = 4, by = 1)
+
+# 1, 3, 5, 7, 9
+seq(from = 1, to = 10, by = 2)
+
+# 10, 8, 6, 4, 2
+seq(from = 10, to = 2, by = -2)
+
+# 1, 1, 1, 1, 1
+rep(1, 5)
+```
+
+
+## Your turn: sequences and repetitions
+
+Write R commands to extract:
+
+a) all the even elements in `name` (i.e. extract positions 2, 4, 6, etc)
+
+```{r}
+# your code
+
+```
+
+
+b) all the odd elements in `area` (i.e. extract positions 1, 3, 5, etc)
+
+```{r}
+# your code
+
+```
+
+
+c) all multiples of 5 (e.g. 5, 10, 15, etc) of `income`
+
+```{r}
+# your code
+
+```
+
+
+d) elements in positions 10, 20, 30, 40, etc of `population`
+
+```{r}
+# your code
+
+```
+
+
+e) all the even elements in `name` but this time in reverse order;
+_hint_: the `rev()` function is your friend.
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+# Logical Subsetting and Comparisons
+
+Another kind of subsetting/subscripting style is the so-called 
+__logical subsetting__. This kind of subsetting typically takes place when 
+making comparisons. 
+
+A __comparison operation__ occurs when you use comparison operators such as: 
+
+- `>` greater than
+- `>=` greater than or equal
+- `<` less than
+- `<=` less than or equal
+- `==` equal
+- `!=` different
+
+For example:
+
+```r
+area_five <- area[1:5]
+
+# elements greater than 100000
+area_five[area_five > 100000]
+
+# elements less than 100000
+area_five[area_five < 100000]
+
+# elements less than or equal to 53000
+area_five[area_five <= 53000]
+
+# elements different from 50000
+area_five[area_five != 50000]
+```
+
+In addition to using comparison operators, you can also use __logical operators__ 
+to produce a logical vector. The most common type of logical operators are:
+
+- `&` AND
+- `|` OR
+- `!` negation
+
+Run the following commands to see what R does:
+
+```r
+# AND
+TRUE & TRUE
+TRUE & FALSE
+FALSE & FALSE
+
+# OR
+TRUE | TRUE
+TRUE | FALSE
+FALSE | FALSE
+
+# NOT
+!TRUE
+!FALSE
+```
+
+<br>
+
+Logical operators allow you to combine several comparisons:
+
+```{r}
+# vectors for first 10 elements
+name10 <- name[1:10]
+area10 <- area[1:10]
+pop10 <- population[1:10]
+inc10 <- income[1:10]
+
+# names of first 10 states with area greater than 100,000
+name10[area10 > 100000]
+
+# names of first 10 states with populations between 2000 and 3000 (exclusive)
+name10[pop10 > 2000 & pop10 < 3000]
+```
+
+
+## Your turn: logical subsetting
+
+Write commands, using bracket notation, to answer the following questions 
+(you may need to use `is.na()`, `min()`, `max()`, `which()`, `which.min()`, `which.max()`):
+
+a) name of states from region `"West"`
+
+```{r}
+# your code
+
+```
+
+
+b) name of states from regions `"West"` or `"Northeast"`
+
+```{r}
+# your code
+
+```
+
+
+c) number (count) of states in the `"South"` region; _hint_: the `sum()`
+function is your friend
+
+```{r}
+# your code
+
+```
+
+
+d) name of state with largest area; _hint_: the `which.max()`
+function is your friend
+
+```{r}
+# your code
+
+```
+
+
+e) largest Population of states in the `"West"` region; _hint_: the `max()`
+function is your friend
+
+```{r}
+# your code
+
+```
+
+
+f) name of states with illiteracy percentage of at most 60%, and population of 
+at least 2000 
+
+```{r}
+# your code
+
+```
+
+
+g) name of state(s) in the `"Northeast"` with income equal to the median income 
+of states in the `"Northeast"`
+
+```{r}
+# your code
+
+```
+
+
+-----
+
+
+# More Manipulations
+
+Consider the vector `vec` given below:
+
+```{r}
+vec = c("x", "y", "a", "b")
+```
+
+
+## Your Turn: more vector manipulations
+
+For each of the following parts, write at least two different commands that 
+produce the given outputs:
+
+a) `"x"`
+
+```{r}
+# your commands
+
+```
+
+<br>
+
+b) `"b" "a" "y" "x"`
+
+```{r}
+# your commands
+
+```
+
+<br>
+
+c) `"b" "b" "b"`
+
+```{r}
+# your commands
+
+```

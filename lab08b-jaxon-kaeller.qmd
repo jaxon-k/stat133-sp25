@@ -1,0 +1,192 @@
+---
+title: "Lab-08b: Intro to Regular Expressions"
+subtitle: "Stat 133"
+format: 
+  html:
+    toc: true
+    number-sections: true
+    theme: zephyr
+embed-resources: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(tidyverse)  # ecosystem of data science packages 
+library(rvest)      # for web scraping
+library(plotly)     # for web-interactive plots
+```
+
+::: {.callout-note icon="false"}
+## General Instructions
+
+-   Use the template file `lab08b-template.qmd` to answer the questions.
+
+-   Rename this file as `lab08b-first-last.qmd`, where `first` and
+    `last` are your first and last names (e.g.
+    `lab08b-gaston-sanchez.qmd`).
+
+-   Make sure the YAML header in your `qmd` files includes
+    `embed-resources: true`.
+
+-   Submit both your qmd and HTML files to the corresponding assignment
+    submission in bCourses.
+
+-   Please note that if you submit the incorrect files you will receive
+    no credit.
+:::
+
+::: callout-important
+We are assuming that you've reviewed the practice material associated to
+lab-08: `practice-regex2.html`.
+
+File in course website:
+
+<https://stat133.berkeley.edu/fall-2024/practice/practice-regex2.html>
+:::
+
+------------------------------------------------------------------------
+
+# Data: Men's 1500-meters Freestyle
+
+You will be working with data for one of the world records in swimming,
+namely the *Men's long course 1500-meters freestyle world record
+progression*, available in wikipedia:
+
+<https://en.wikipedia.org/wiki/World_record_progression_1500_metres_freestyle>
+
+The data is part of an HTML table from the above wikipedia page.
+
+## Data Scraping
+
+One way to scrape the data is with some `"rvest"` functions:
+
+```{r}
+# wikipedia's url
+# (assemble url so that code fits within screen)
+wiki = "https://en.wikipedia.org/wiki/"
+swim1500 = "World_record_progression_1500_metres_freestyle"
+url = paste0(wiki, swim1500)
+
+# scrape HTML tables (into a list)
+tables = read_html(url) |>
+  html_table()
+  
+# desired table is the first one
+tbl = tables[[1]]
+tbl
+```
+
+------------------------------------------------------------------------
+
+# Data Cleaning and Timeline
+
+The goal is to clean the scraped data table in order to produce a
+simpler and cleaner table via string manipulations with regex. More
+specifically, the *clean* tibble will have the following columns:
+
+-   `time` (in minutes, as numeric)
+-   `name` (name of athlete)
+-   `month` (name of month)
+-   `day` (number of day, as numeric)
+-   `year` (number of year, as numeric)
+-   `date` (date yyyy-mm-dd, as Date)
+
+In addition, you will have to create a timeline graphic to visualize the
+progression of world records.
+
+## Tip 1) Time Conversion to Minutes
+
+As you can tell, the `Time` values are originally expressed as a mix of
+minutes and seconds. For example, the first record set by Henry Taylor
+back in Jul-25-1908 was **22:48.4** that is: 22 minutes, and 48.4
+seconds.
+
+To clean the data and obtain a column `time`, we need to convert those
+times into minutes:
+
+$$
+22 + 48.4/60 = `r 22 + 48.4/60`
+$$
+
+## Tip 2) Conversion to Date type
+
+The values in column `Date` are given in non-standard format. Again, the
+date of the first record in the table is expressed as `"Jul 25, 1908"`.
+
+To convert this string as an actual `"Date"` type, we can use
+`as.Date()`
+
+```{r}
+date1 = as.Date("Jul 25, 1908", "%B %d, %Y")
+date1
+```
+
+In case you are curious, the specified date format has an interesting
+structure: `"%B %d, %Y"`. What do these symbols mean?
+
+-   `%B` is a placeholder to indicate the *capitalized* name of the
+    month
+
+-   `%d` is a placeholder for the day of the month
+
+-   `%Y` is a placeholder to indicate a four-digit year value
+
+In turn, the output returned by `as.Date()` has a standard Date format:
+`"yyyy-mm-dd"`
+
+------------------------------------------------------------------------
+
+# Your Solutions
+
+```{r}
+# create character vector of all month names
+month = str_sub(tbl$Date, 1, 3)
+```
+
+```{r}
+# create vectors for minutes and seconds
+time_mat = str_split_fixed(tbl$Time, ":", 2)
+minutes = as.numeric(time_mat[,1])
+seconds = as.numeric(time_mat[,2])
+```
+
+```{r}
+# creating a column time
+time = as.numeric(minutes + seconds/60)
+```
+
+```{r}
+# extracting names using str_extract
+name = str_extract(tbl$Name, "\\w+\\s\\w+")
+```
+
+```{r}
+# creating vectors of day and year
+day = as.numeric(str_extract(tbl$Date, "[:digit:]{1,2}"))
+year = as.numeric(str_extract(tbl$Date, "\\d{4}"))
+
+# creating new vector date
+date = as.Date(tbl$Date, "%B %d, %Y")
+```
+
+```{r}
+# cleaned data
+clean = data.frame(
+  time,
+  name,
+  month,
+  day,
+  year,
+  date
+)
+
+cool = ggplot(clean) +
+  geom_line(aes(x = date, y = time)) + 
+  labs(title = "1500m Men's Freestyle World Records Over Time",
+       x = "Date", y = "Time")
+
+ggplotly(cool)
+```
